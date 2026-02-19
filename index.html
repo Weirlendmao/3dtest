@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Mobile Skin Viewer</title>
+<title>Skin Viewer</title>
 <style>
 body { margin:0; overflow:hidden; touch-action:none; }
 </style>
@@ -11,89 +11,100 @@ body { margin:0; overflow:hidden; touch-action:none; }
 
 <script type="module">
 
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js";
-import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/controls/OrbitControls.js";
+import * as THREE from "https://unpkg.com/three@0.158.0/build/three.module.js";
+import { OrbitControls } from "https://unpkg.com/three@0.158.0/examples/jsm/controls/OrbitControls.js";
 
-let scene = new THREE.Scene();
+const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-// Camera
-let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 3000);
-camera.position.set(50, 60, 120);
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth/window.innerHeight,
+  0.1,
+  3000
+);
+camera.position.set(60, 80, 140);
 
-// Renderer
-let renderer = new THREE.WebGLRenderer({antialias:true});
+const renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
 // Light
 scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-
-let dirLight = new THREE.DirectionalLight(0xffffff, 1);
-dirLight.position.set(50,100,50);
-scene.add(dirLight);
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(50,100,50);
+scene.add(light);
 
 // Floor
-let floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(3000,3000),
-    new THREE.MeshPhongMaterial({color:0x222222})
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(2000,2000),
+  new THREE.MeshPhongMaterial({ color:0x222222 })
 );
 floor.rotation.x = -Math.PI/2;
 scene.add(floor);
 
-// Texture loader
-let loader = new THREE.TextureLoader();
-
-let spacing = 128;
-let size = 64;
-let total = 116;
-let perRow = Math.ceil(Math.sqrt(total));
-
-for(let i=0; i<total; i++){
-
-    let texture = loader.load(`images/skin_${i}.jpg`);
-
-    let cube = new THREE.Mesh(
-        new THREE.BoxGeometry(size,size,size),
-        new THREE.MeshPhongMaterial({map:texture})
-    );
-
-    let row = Math.floor(i/perRow);
-    let col = i%perRow;
-
-    cube.position.set(
-        col*spacing,
-        size/2,
-        row*spacing
-    );
-
-    scene.add(cube);
-}
-
-// ✅ OrbitControls versi module
-let controls = new OrbitControls(camera, renderer.domElement);
+// Controls
+const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
-controls.minDistance = 30;
-controls.maxDistance = 400;
-controls.maxPolarAngle = Math.PI / 2.1;
-controls.target.set(60, 0, 60);
-controls.update();
+controls.maxPolarAngle = Math.PI / 2;
+controls.minDistance = 40;
+controls.maxDistance = 500;
 
-// Resize
-window.addEventListener("resize", ()=>{
-    camera.aspect = window.innerWidth/window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+// Texture loader
+const loader = new THREE.TextureLoader();
+
+const spacing = 128;
+const size = 64;
+const total = 116;
+const perRow = Math.ceil(Math.sqrt(total));
+
+for(let i=0;i<total;i++){
+
+  const texture = loader.load(
+    `images/skin_${i}.jpg`,
+    undefined,
+    undefined,
+    () => console.warn("Texture gagal:", i)
+  );
+
+  const cube = new THREE.Mesh(
+    new THREE.BoxGeometry(size,size,size),
+    new THREE.MeshPhongMaterial({ map:texture })
+  );
+
+  const row = Math.floor(i/perRow);
+  const col = i%perRow;
+
+  cube.position.set(
+    col*spacing,
+    size/2,
+    row*spacing
+  );
+
+  scene.add(cube);
+}
+
+// Focus tengah grid
+controls.target.set(
+  (perRow*spacing)/2,
+  0,
+  (perRow*spacing)/2
+);
+
+window.addEventListener("resize",()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Animate
 function animate(){
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene,camera);
 }
+
 animate();
 
 </script>

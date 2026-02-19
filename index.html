@@ -9,73 +9,73 @@ body { margin:0; overflow:hidden; touch-action:none; }
 </head>
 <body>
 
-<script type="module">
+<!-- THREE -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-import * as THREE from "https://unpkg.com/three@0.158.0/build/three.module.js";
-import { OrbitControls } from "https://unpkg.com/three@0.158.0/examples/jsm/controls/OrbitControls.js";
+<!-- OrbitControls NON-module -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/controls/OrbitControls.js"></script>
 
-const scene = new THREE.Scene();
+<script>
+
+let scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
-const camera = new THREE.PerspectiveCamera(
+let camera = new THREE.PerspectiveCamera(
   75,
   window.innerWidth/window.innerHeight,
   0.1,
   3000
 );
-camera.position.set(60, 80, 140);
+camera.position.set(60,80,140);
 
-const renderer = new THREE.WebGLRenderer({ antialias:true });
+let renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
 // Light
-scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-const light = new THREE.DirectionalLight(0xffffff, 1);
+scene.add(new THREE.AmbientLight(0xffffff,0.6));
+let light = new THREE.DirectionalLight(0xffffff,1);
 light.position.set(50,100,50);
 scene.add(light);
 
 // Floor
-const floor = new THREE.Mesh(
+let floor = new THREE.Mesh(
   new THREE.PlaneGeometry(2000,2000),
-  new THREE.MeshPhongMaterial({ color:0x222222 })
+  new THREE.MeshPhongMaterial({color:0x222222})
 );
 floor.rotation.x = -Math.PI/2;
 scene.add(floor);
 
-// Controls
-const controls = new OrbitControls(camera, renderer.domElement);
+// Controls (GLOBAL VERSION)
+let controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
-controls.maxPolarAngle = Math.PI / 2;
+controls.maxPolarAngle = Math.PI/2;
 controls.minDistance = 40;
 controls.maxDistance = 500;
 
-// Texture loader
-const loader = new THREE.TextureLoader();
+// Texture Loader
+let loader = new THREE.TextureLoader();
 
-const spacing = 128;
-const size = 64;
-const total = 116;
-const perRow = Math.ceil(Math.sqrt(total));
+let spacing = 128;
+let size = 64;
+let total = 116;
+let perRow = Math.ceil(Math.sqrt(total));
 
 for(let i=0;i<total;i++){
 
-  const texture = loader.load(
-    `images/skin_${i}.jpg`,
-    undefined,
-    undefined,
-    () => console.warn("Texture gagal:", i)
+  let texture = loader.load(
+    "images/skin_"+i+".jpg"
   );
 
-  const cube = new THREE.Mesh(
+  let cube = new THREE.Mesh(
     new THREE.BoxGeometry(size,size,size),
-    new THREE.MeshPhongMaterial({ map:texture })
+    new THREE.MeshPhongMaterial({map:texture})
   );
 
-  const row = Math.floor(i/perRow);
-  const col = i%perRow;
+  let row = Math.floor(i/perRow);
+  let col = i%perRow;
 
   cube.position.set(
     col*spacing,
@@ -86,7 +86,6 @@ for(let i=0;i<total;i++){
   scene.add(cube);
 }
 
-// Focus tengah grid
 controls.target.set(
   (perRow*spacing)/2,
   0,
@@ -108,5 +107,6 @@ function animate(){
 animate();
 
 </script>
+
 </body>
 </html>
